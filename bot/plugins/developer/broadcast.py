@@ -28,12 +28,12 @@ commands = ["broadcast", f"broadcast@{BOT_USERNAME}"]
 @dev_commands
 async def broadcast(c, m):
     out = await m.reply_text(
-        text=f"Broadcast initiated! You will be notified with log file when all the users are notified."
+        text="Broadcast initiated! You will be notified with log file when all the users are notified."
     )
     all_users = await DatabaseHelper().get_all_users()
     broadcast_msg = m.reply_to_message
     while True:
-        broadcast_id = "".join([random.choice(string.ascii_letters) for i in range(3)])
+        broadcast_id = "".join([random.choice(string.ascii_letters) for _ in range(3)])
         if not Broadcast_IDs.get(broadcast_id):
             break
     start_time = time.time()

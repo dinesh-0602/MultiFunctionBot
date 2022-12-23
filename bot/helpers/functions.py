@@ -120,14 +120,12 @@ def get_readable_size(size):
     while size > power:
         size /= power
         raised_to_pow += 1
-    return str(round(size, 2)) + " " + dict_power_n[raised_to_pow] + "B"
+    return f"{str(round(size, 2))} {dict_power_n[raised_to_pow]}B"
 
 
 async def multi_api():
-    EMILY_API_LIST = []
     emilyapi_urls = EMILY_API_URL.split(" ")
-    for api in emilyapi_urls:
-        EMILY_API_LIST.append(str(api))
+    EMILY_API_LIST = [str(api) for api in emilyapi_urls]
     return random.choice(EMILY_API_LIST)
 
 
