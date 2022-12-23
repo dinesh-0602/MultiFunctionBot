@@ -43,7 +43,7 @@ os.system("pip3 install --no-cache-dir -r requirements.txt --upgrade")
 LOGGER(__name__).info("Initiating the Client!")
 LOGGER(__name__).info(BANNER)
 LOGGER(__name__).info(
-    f"Pyrogram v{__version__} (Layer {layer}) started on {f'@{BOT_USERNAME}'}."
+    f"Pyrogram v{__version__} (Layer {layer}) started on @{BOT_USERNAME}."
 )
 LOGGER(__name__).info("Telegram Bot Started.")
 

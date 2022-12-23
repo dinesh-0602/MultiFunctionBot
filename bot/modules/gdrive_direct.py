@@ -30,8 +30,7 @@ async def gdtot(url: str) -> str:
         decoded_id = base64.b64decode(str(params[0])).decode("utf-8")
     except BaseException:
         return "Something went wrong. Could not generate GDrive URL for your GDTot Link"
-    drive_link = f"https://drive.google.com/open?id={decoded_id}"
-    return drive_link
+    return f"https://drive.google.com/open?id={decoded_id}"
 
 
 async def unified(url: str) -> str:
@@ -69,9 +68,9 @@ async def unified(url: str) -> str:
         while data["type"] <= 3:
             boundary = f'{"-" * 6}_'
             data_string = ""
-            for item in data:
+            for item, value in data.items():
                 data_string += f"{boundary}\r\n"
-                data_string += f'Content-Disposition: form-data; name="{item}"\r\n\r\n{data[item]}\r\n'
+                data_string += f'Content-Disposition: form-data; name="{item}"\r\n\r\n{value}\r\n'
             data_string += f"{boundary}--\r\n"
             gen_payload = data_string
             try:
@@ -91,8 +90,7 @@ async def unified(url: str) -> str:
             return f"{info_parsed}"
         info_parsed["src_url"] = url
         if "appdrive." in urlparse(url).netloc:
-            flink = info_parsed["gdrive_link"]
-            return flink
+            return info_parsed["gdrive_link"]
         elif urlparse(url).netloc in (
             "driveapp.in",
             "drivehub.in",
@@ -105,18 +103,14 @@ async def unified(url: str) -> str:
             "drivepro.in",
         ):
             res = client.get(info_parsed["gdrive_link"])
-            drive_link = etree.HTML(res.content).xpath(
+            return etree.HTML(res.content).xpath(
                 "//a[contains(@class,'btn')]/@href"
             )[0]
-            flink = drive_link
-            return flink
         else:
             res = client.get(info_parsed["gdrive_link"])
-            drive_link = etree.HTML(res.content).xpath(
+            return etree.HTML(res.content).xpath(
                 "//a[contains(@class,'btn btn-primary')]/@href"
             )[0]
-            flink = drive_link
-            return flink
     except Exception as err:
         return f"Encountered Error while parsing Link : {err}"
 
@@ -170,40 +164,30 @@ async def udrive(url: str) -> str:
         return "File Not Found or User rate exceeded !!"
     if "drivefire." in url:
         gd_id = res.rsplit("/", 1)[-1]
-        flink = f"https://drive.google.com/file/d/{gd_id}"
-        return flink
-    elif "drivehub." in url:
+        return f"https://drive.google.com/file/d/{gd_id}"
+    elif "drivehub." in url or "drivebuzz." in url:
         gd_id = res.rsplit("=", 1)[-1]
-        flink = f"https://drive.google.com/open?id={gd_id}"
-        return flink
-    elif "drivebuzz." in url:
-        gd_id = res.rsplit("=", 1)[-1]
-        flink = f"https://drive.google.com/open?id={gd_id}"
-        return flink
+        return f"https://drive.google.com/open?id={gd_id}"
     else:
         try:
             gd_id = re.findall("gd=(.*)", res, re.DOTALL)[0]
         except BaseException:
             return "Unknown Error Occurred!"
-        flink = f"https://drive.google.com/open?id={gd_id}"
-        return flink
+        return f"https://drive.google.com/open?id={gd_id}"
 
 
 async def parse_info(res, url):
-    info_parsed = {}
     if "drivebuzz." in url:
         info_chunks = re.findall('<td\salign="right">(.*?)<\/td>', res.text)
     elif "sharer.pw" in url:
         f = re.findall(">(.*?)<\/td>", res.text)
-        info_parsed = {}
-        for i in range(0, len(f), 3):
-            info_parsed[f[i].lower().replace(" ", "_")] = f[i + 2]
-        return info_parsed
+        return {f[i].lower().replace(" ", "_"): f[i + 2] for i in range(0, len(f), 3)}
     else:
         info_chunks = re.findall(">(.*?)<\/td>", res.text)
-    for i in range(0, len(info_chunks), 2):
-        info_parsed[info_chunks[i]] = info_chunks[i + 1]
-    return info_parsed
+    return {
+        info_chunks[i]: info_chunks[i + 1]
+        for i in range(0, len(info_chunks), 2)
+    }
 
 
 async def sharerpw(url: str, forced_login=False) -> str:
@@ -235,7 +219,7 @@ async def sharerpw(url: str, forced_login=False) -> str:
         if not forced_login:
             data["nl"] = 1
         try:
-            res = scraper.post(url + "/dl", headers=headers, data=data).json()
+            res = scraper.post(f"{url}/dl", headers=headers, data=data).json()
         except BaseException:
             return f"{info_parsed}"
         if "url" in res and res["url"]:
@@ -293,8 +277,7 @@ async def filep_prun(playwright: Playwright, url: str) -> str:
 
 async def filepress(url: str) -> str:
     with sync_playwright() as playwright:
-        flink = await filep_prun(playwright, url)
-        return flink
+        return await filep_prun(playwright, url)
 
 
 async def shareDrive(url, directLogin=True):
@@ -327,15 +310,10 @@ async def shareDrive(url, directLogin=True):
             cookies=cookies,
         )
         toJson = resp.json()
-        if directLogin:
-            if toJson["message"] in successMsgs:
-                driveUrl = toJson["redirect"]
-                return driveUrl
-            else:
-                await shareDrive(url, directLogin=False)
+        if directLogin and toJson["message"] in successMsgs or not directLogin:
+            return toJson["redirect"]
         else:
-            driveUrl = toJson["redirect"]
-            return driveUrl
+            await shareDrive(url, directLogin=False)
     except Exception as err:
         return f"Encountered Error while parsing Link : {err}"
 
@@ -387,5 +365,4 @@ async def pahe(url: str) -> str:
     wd.execute_script("arguments[0].click();", last)
     flink = wd.current_url
     wd.close()
-    gd_url = await gdtot(flink)
-    return gd_url
+    return await gdtot(flink)

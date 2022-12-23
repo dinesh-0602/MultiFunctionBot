@@ -25,8 +25,7 @@ async def androiddatahost(url):
     try:
         c = BeautifulSoup(requests.get(url).content, "html.parser")
         fin = c.find("div", {"download2"})
-        dl_url = fin.find("a")["href"].replace(" ", "%20")
-        return dl_url
+        return fin.find("a")["href"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -49,8 +48,7 @@ async def antfiles(url):
         soup = BeautifulSoup(requests.get(url).content, "html.parser")
         parsed_url = urllib.parse.urlparse(url)
         if a := soup.find(class_="main-btn", href=True):
-            final_url = "{0.scheme}://{0.netloc}/{1}".format(parsed_url, a["href"])
-            return final_url
+            return "{0.scheme}://{0.netloc}/{1}".format(parsed_url, a["href"])
     except BaseException:
         return "Could not Generate Direct Link for your AntFiles Link :("
 
@@ -68,8 +66,7 @@ async def artstation(url):
     try:
         resp = client.get(apix, headers=h)
         uhh = resp.json()
-        dl_url = uhh["assets"][0]["image_url"]
-        return dl_url
+        return uhh["assets"][0]["image_url"]
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -104,7 +101,7 @@ async def bunkr_cyber(url):
                 dl_msg += f"<b>{count}.</b> <code>{item_url}</code><br>"
                 count += 1
         fld_msg = f"Your provided {link_type} link is of Folder and I've Found {count - 1} files in the Folder."
-        fld_msg += f"I've generated Direct Links for all the files.<br><br>"
+        fld_msg += "I've generated Direct Links for all the files.<br><br>"
         return fld_msg + dl_msg
     except BaseException:
         return f"Could not Generate Direct Link for your {link_type} Link :("
@@ -125,10 +122,8 @@ async def fembed(url):
     try:
         url = url[:-1] if url[-1] == "/" else url
         TOKEN = url.split("/")[-1]
-        API = "https://fembed-hd.com/api/source/"
-        response = requests.post(API + TOKEN).json()
-        dl_url = response["data"].replace(" ", "%20")
-        return dl_url
+        response = requests.post(f"https://fembed-hd.com/api/source/{TOKEN}").json()
+        return response["data"].replace(" ", "%20")
     except BaseException:
         return "Could not Generate Direct Link for your FEmbed Link :("
 
@@ -150,10 +145,11 @@ async def fichier(url):
         str_2 = soup.find_all("div", {"class": "ct_warn"})[-1]
         if "you must wait" in str(str_2).lower():
             numbers = [int(word) for word in str(str_2).split() if word.isdigit()]
-            if not numbers:
-                return "1fichier is on a limit. Please wait a few minutes/hour."
-            else:
-                return f"1fichier is on a limit. Please wait {numbers[0]} minute."
+            return (
+                f"1fichier is on a limit. Please wait {numbers[0]} minute."
+                if numbers
+                else "1fichier is on a limit. Please wait a few minutes/hour."
+            )
         elif "protect access" in str(str_2).lower():
             return f"This link requires a password!\n\n<b>This link requires a password!</b>"
         else:
@@ -164,10 +160,11 @@ async def fichier(url):
         str_3 = soup.find_all("div", {"class": "ct_warn"})[-1]
         if "you must wait" in str(str_1).lower():
             numbers = [int(word) for word in str(str_1).split() if word.isdigit()]
-            if not numbers:
-                return "1fichier is on a limit. Please wait a few minutes/hour."
-            else:
-                return f"1fichier is on a limit. Please wait {numbers[0]} minute."
+            return (
+                f"1fichier is on a limit. Please wait {numbers[0]} minute."
+                if numbers
+                else "1fichier is on a limit. Please wait a few minutes/hour."
+            )
         elif "bad password" in str(str_3).lower():
             return "The password you entered is wrong!"
         else:
@@ -197,8 +194,7 @@ async def gdbot(url):
         token = re.findall("'token', '(.*?)'", resp.text)[0]
         data = {"token": token}
         resp2 = client.post(url, data=data).text
-        res = resp2.split('":"')[1].split('"}')[0].replace("\\", "")
-        return res
+        return resp2.split('":"')[1].split('"}')[0].replace("\\", "")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -230,8 +226,7 @@ async def gofile(url):
         for item in res["data"]["contents"].values():
             content = item
             dl_url = content["directLink"]
-            dl_url = dl_url.replace(" ", "%20")
-            return dl_url
+            return dl_url.replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -275,7 +270,7 @@ async def hubcloud(url):
     pattern3 = re.compile(r"\bhttps?://.*(hashhackers)\S+", re.IGNORECASE)
     if pattern1.match(flink):
         sleep(4)
-        final_msg = wd.find_element(By.XPATH, workers).get_attribute("href")
+        return wd.find_element(By.XPATH, workers).get_attribute("href")
     elif pattern2.match(flink) or pattern3.match(flink):
         WebDriverWait(wd, 20).until(
             ec.element_to_be_clickable((By.XPATH, btnshow))
@@ -299,10 +294,9 @@ async def hubcloud(url):
             wd.switch_to.window(Itab)
         except IndexError:
             wd.switch_to.window(IItab)
-        final_msg = wd.find_element(By.XPATH, workers).get_attribute("href")
+        return wd.find_element(By.XPATH, workers).get_attribute("href")
     else:
-        final_msg = "Could not any matching Links to Bypass from the Link!"
-    return final_msg
+        return "Could not any matching Links to Bypass from the Link!"
 
 
 async def hxfile(url):
@@ -359,8 +353,7 @@ async def krakenfiles(url):
             f"https://krakenfiles.com/download/{hash}", data=payload, headers=headers
         )
         dl_link_json = dl_link_resp.json()
-        dl_url = dl_link_json["url"].replace(" ", "%20")
-        return dl_url
+        return dl_link_json["url"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -394,8 +387,7 @@ async def mdisk(url):
     f_url = f"https://diskuploader.entertainvideo.com/v1/file/cdnurl?param={token}"
     try:
         response = client.get(f_url, headers=h).json()
-        dl_url = response["download"].replace(" ", "%20")
-        return dl_url
+        return response["download"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -411,8 +403,7 @@ async def mdisk_mpd(url):
     f_url = f"https://diskuploader.entertainvideo.com/v1/file/cdnurl?param={token}"
     try:
         response = client.get(f_url, headers=h).json()
-        dl_url = response["source"].replace(" ", "%20")
-        return dl_url
+        return response["source"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -423,8 +414,7 @@ async def mediafire(url):
     try:
         page = BeautifulSoup(requests.get(url).content, "lxml")
         info = page.find("a", {"aria-label": "Download file"})
-        dl_url = info.get("href").replace(" ", "%20")
-        return dl_url
+        return info.get("href").replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -449,10 +439,9 @@ async def megaup(url):
             idurl += data[0][i]
         for i in range(int((len(data[1]) - 3) / 2 + 2), 2, -1):
             idurl += data[1][i]
-            des_url = f"https://download.megaup.net/?idurl={idurl}&idfilename={data[2]}&idfilesize={data[3]}".replace(
+            return f"https://download.megaup.net/?idurl={idurl}&idfilename={data[2]}&idfilesize={data[3]}".replace(
                 " ", "%20"
             )
-            return des_url
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -462,7 +451,7 @@ async def mirrored(url):
         return "The link you entered is wrong!"
     res_msg = None
     client = cloudscraper.create_scraper(interpreter="javascript", allow_brotli=False)
-    url = url + "/" if url[-1] != "/" else url
+    url = f"{url}/" if url[-1] != "/" else url
     hs = {
         "Connection": "Keep-Alive",
         "Content-Type": "text/html; charset=UTF-8",
@@ -501,8 +490,7 @@ async def mp4upload(url):
     }
     try:
         response = requests.post(url, headers=headers, data=data, allow_redirects=False)
-        des_url = response.headers["Location"]
-        return des_url
+        return response.headers["Location"]
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -559,8 +547,7 @@ async def pandafile(url):
         resp = requests.post(url, headers=headers, data=data)
         bsObj = BeautifulSoup(resp.content, features="lxml")
         for a in bsObj.find_all("a", href=True):
-            dl_url = a["href"].replace(" ", "%20")
-            return dl_url
+            return a["href"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -587,7 +574,6 @@ async def pixl(url):
     if resp.status_code == 404:
         return "File not found/The link you entered is wrong!"
     try:
-        currentpage = 1
         soup = BeautifulSoup(resp.content, "html.parser")
         thmbnailanchors = soup.findAll(attrs={"class": "--media"})
         links = soup.findAll(attrs={"data-pagination": "next"})
@@ -599,7 +585,7 @@ async def pixl(url):
         ddl_msg = ""
         for ref in thmbnailanchors:
             imgdata = requests.get(ref.attrs["href"])
-            if not imgdata.status_code == 200:
+            if imgdata.status_code != 200:
                 sleep(3)
                 continue
             imghtml = BeautifulSoup(imgdata.text, "html.parser")
@@ -607,9 +593,9 @@ async def pixl(url):
             currentimg = downloadanch.attrs["href"]
             ddl_msg += f"<b>{count}.</b> <code>{currentimg}</code><br>"
             count += 1
-        currentpage += 1
+        currentpage = 1 + 1
         fld_msg = f"Your provided Pixl.is link is of Folder and I've Found {count - 1} files in the folder.<br>"
-        fld_msg += f"I've generated Direct Links for all the files.<br><br>"
+        fld_msg += "I've generated Direct Links for all the files.<br><br>"
         return fld_msg + ddl_msg
     except BaseException:
         return "Could not Generate Direct Link for your Pixl.is Link :("
@@ -642,8 +628,7 @@ async def sendcm(url):
         "Content-Type": "application/x-www-form-urlencoded",
         "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36",
     }
-    is_sendcm_folder = is_sendcm_folder_link(url)
-    if is_sendcm_folder:
+    if is_sendcm_folder := is_sendcm_folder_link(url):
         done = False
         msg = ""
         page_no = 0
@@ -703,9 +688,7 @@ async def solidfiles(url):
     }
     try:
         pageSource = requests.get(url, headers=headers).text
-        mainOptions = str(
-            re.search(r"viewerOptions\'\,\ (.*?)\)\;", pageSource).group(1)
-        )
+        mainOptions = str(re.search(r"viewerOptions\'\,\ (.*?)\)\;", pageSource)[1])
         return json.loads(mainOptions)["downloadUrl"]
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
@@ -719,8 +702,7 @@ async def sfile(url):
     }
     try:
         url3 = BeautifulSoup(requests.get(url, headers=headers).content, "html.parser")
-        dl_url = url3.find("a", "w3-button w3-blue")["href"].replace(" ", "%20")
-        return dl_url
+        return url3.find("a", "w3-button w3-blue")["href"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -745,7 +727,7 @@ async def sourceforge(url):
 
 
 async def sourceforge2(url):
-    return f"{url}" + "?viasf=1"
+    return f"{url}?viasf=1"
 
 
 async def streamlare(url):
@@ -755,7 +737,7 @@ async def streamlare(url):
     API_LINK = "https://sltube.org/api/video/download/get"
     user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/84.0.4136.7 Safari/537.36"
     client = requests.Session()
-    content_id = CONTENT_ID.search(url).group(1)
+    content_id = CONTENT_ID.search(url)[1]
     try:
         r = client.get(url).text
         soup = BeautifulSoup(r, "html.parser")
@@ -769,10 +751,9 @@ async def streamlare(url):
             "user-agent": user_agent,
         }
         payload = {"id": content_id}
-        dl_url = client.post(API_LINK, headers=headers, data=payload).json()["result"][
-            "Original"
-        ]["url"]
-        return dl_url
+        return client.post(API_LINK, headers=headers, data=payload).json()[
+            "result"
+        ]["Original"]["url"]
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -783,8 +764,7 @@ async def streamtape(url):
     try:
         response = requests.get(url)
         if videolink := re.findall(r"document.*((?=id\=)[^\"']+)", response.text):
-            nexturl = "https://streamtape.com/get_video?" + videolink[-1]
-            return nexturl
+            return f"https://streamtape.com/get_video?{videolink[-1]}"
     except BaseException:
         return "Could not Generate Direct Link for your StreamTape Link :("
 
@@ -846,10 +826,12 @@ async def uppit(url):
     try:
         response = client.post(url, headers=headers, data=data)
         soup = BeautifulSoup(response.text, "html.parser")
-        download_url = soup.find(
-            "span", {"style": "background:#f9f9f9;border:1px dotted #bbb;padding:7px;"}
+        return soup.find(
+            "span",
+            {
+                "style": "background:#f9f9f9;border:1px dotted #bbb;padding:7px;"
+            },
         ).a.get("href")
-        return download_url
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -969,8 +951,7 @@ async def wetransfer(url):
             f"https://wetransfer.com/api/v4/transfers/{transfer_id}/download", json=j
         )
         j = r.json()
-        dl_url = j["direct_link"].replace(" ", "%20")
-        return dl_url
+        return j["direct_link"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -980,8 +961,7 @@ async def yandex_disk(url):
         return "The link you entered is wrong!"
     api = "https://cloud-api.yandex.net/v1/disk/public/resources/download?public_key={}"
     try:
-        dl_url = requests.get(api.format(url)).json()["href"].replace(" ", "%20")
-        return dl_url
+        return requests.get(api.format(url)).json()["href"].replace(" ", "%20")
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"
 
@@ -997,12 +977,7 @@ async def zippyshare(url):
         ):
             folder, math_chall, filename = dlbutton.groups()
             math_chall = eval(math_chall)
-            return "%s%s%s%s" % (
-                re.search(r"https?://[^/]+", response.url).group(0),
-                folder,
-                math_chall,
-                filename,
-            )
+            return f'{re.search("https?://[^/]+", response.url)[0]}{folder}{math_chall}{filename}'
         soup = BeautifulSoup(response.text, "html.parser")
         if script := soup.find("script", text=re.compile("(?si)\s*var a = \d+;")):
             sc = str(script)
@@ -1019,6 +994,6 @@ async def zippyshare(url):
 
                 return re.search(
                     r"(^https://www\d+.zippyshare.com)", response.url
-                ).group(1) + "".join([file[0], str(a + (divider % int(b))), file[1]])
+                )[1] + "".join([file[0], str(a + (divider % int(b))), file[1]])
     except BaseException:
         return "Some Error Occurred \nCould not generate dl-link for your URL"

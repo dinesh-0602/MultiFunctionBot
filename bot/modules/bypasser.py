@@ -93,10 +93,7 @@ async def bifm(url):
         query = response.json()
     except BaseException:
         return "Invalid Link"
-    if "destination" in query:
-        return query["destination"]
-    else:
-        return query["error"]
+    return query["destination"] if "destination" in query else query["error"]
 
 
 async def droplink(url):
@@ -194,11 +191,9 @@ async def gtlinks(url):
         return "The link you entered is wrong!"
     client = requests.Session()
     url = url[:-1] if url[-1] == "/" else url
-    if "theforyou.in" in url:
-        token = url.split("=")[-1]
-    else:
+    if "theforyou.in" not in url:
         url = requests.get(url).url
-        token = url.split("=")[-1]
+    token = url.split("=")[-1]
     dom = "https://go.kinemaster.cc/"
     try:
         response = client.get(dom + token, headers={"referer": dom + token})
@@ -207,9 +202,9 @@ async def gtlinks(url):
         data = {input.get("name"): input.get("value") for input in inputs}
         time.sleep(5)
         headers = {"x-requested-with": "XMLHttpRequest"}
-        des_url = client.post(dom + "links/go", data=data, headers=headers).json()[
-            "url"
-        ]
+        des_url = client.post(
+            f"{dom}links/go", data=data, headers=headers
+        ).json()["url"]
         des_url = des_url.replace(" ", "%20")
         return des_url
     except BaseException:
@@ -360,13 +355,12 @@ async def linkvertise(url):
         query = data.json()
         if query["success"] is True:
             return query["destination"]
-        else:
-            data = {
-                "url": url,
-            }
-            r = requests.post("https://api.bypass.vip/", data=data)
-            time.sleep(1)
-            return r.json()["destination"]
+        data = {
+            "url": url,
+        }
+        r = requests.post("https://api.bypass.vip/", data=data)
+        time.sleep(1)
+        return r.json()["destination"]
     except BaseException:
         return "Some Error Occurred \nCould not Bypass your URL"
 
@@ -424,10 +418,7 @@ async def multi_bypass(url):
             res = resp.json()
         except BaseException:
             return "Emily API Unresponsive!"
-        if res["success"] is True:
-            f_msg = res["url"]
-        else:
-            f_msg = res["msg"]
+        f_msg = res["url"] if res["success"] is True else res["msg"]
     return f_msg
 
 
@@ -522,9 +513,9 @@ async def pkin(url):
         data = {input.get("name"): input.get("value") for input in inputs}
         time.sleep(3)
         headers = {"x-requested-with": "XMLHttpRequest", "user-agent": user_agent}
-        des_url = client.post(dom + "links/go", data=data, headers=headers).json()[
-            "url"
-        ]
+        des_url = client.post(
+            f"{dom}links/go", data=data, headers=headers
+        ).json()["url"]
         des_url = des_url.replace(" ", "%20")
         return des_url
     except BaseException:
@@ -597,9 +588,7 @@ async def scripta(dom, url, client):
     res = client.get(url)
     soup = BeautifulSoup(res.text, "html.parser")
     soup = soup.find("form").findAll("input")
-    datalist = []
-    for ele in soup:
-        datalist.append(ele.get("value"))
+    datalist = [ele.get("value") for ele in soup]
     data = {
         "_method": datalist[0],
         "_csrfToken": datalist[1],
@@ -621,9 +610,8 @@ async def scripta(dom, url, client):
         "Sec-Fetch-Site": "same-origin",
     }
     time.sleep(10)  # important
-    response = client.post(dom + "/links/go", data=data).json()
-    furl = response["url"]
-    return furl
+    response = client.post(f"{dom}/links/go", data=data).json()
+    return response["url"]
 
 
 async def scriptb(url):
@@ -634,9 +622,7 @@ async def scriptb(url):
     soup = soup.find("form")
     action = soup.get("action")
     soup = soup.findAll("input")
-    datalist = []
-    for ele in soup:
-        datalist.append(ele.get("value"))
+    datalist = [ele.get("value") for ele in soup]
     client.headers = {
         "User-Agent": "Mozilla/5.0 (X11; Linux x86_64; rv:103.0) Gecko/20100101 Firefox/103.0",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
@@ -673,8 +659,7 @@ async def shareus(url):
         des_url = (
             f"https://us-central1-my-apps-server.cloudfunctions.net/r?shortid={token}"
         )
-        dest_url = client.get(des_url).text
-        return dest_url
+        return client.get(des_url).text
     except BaseException:
         return "Some Error Occurred \nCould not Bypass your URL"
 
@@ -761,12 +746,11 @@ async def shortly(url):
     token = url.split("/")[-1]
     shortly_bypass_api = "https://www.shortly.xyz/getlink.php/"
     try:
-        response = requests.post(
+        return requests.post(
             shortly_bypass_api,
             data={"id": token},
             headers={"referer": "https://www.shortly.xyz/link"},
         ).text
-        return response
     except BaseException:
         return "Some Error Occurred \nCould not Bypass your URL"
 
@@ -875,8 +859,7 @@ async def urlsopen(url):
         data = {input.get("name"): input.get("value") for input in inputs}
         h = {"x-requested-with": "XMLHttpRequest"}
         time.sleep(12)
-        des_url = client.post(f"{dom}/links/go", data=data, headers=h).json()["url"]
-        return des_url
+        return client.post(f"{dom}/links/go", data=data, headers=h).json()["url"]
     except BaseException:
         return "Some Error Occurred \nCould not Bypass your URL"
 
@@ -919,7 +902,6 @@ async def xpshort(url):
         data = {input.get("name"): input.get("value") for input in inputs}
         h = {"x-requested-with": "XMLHttpRequest"}
         time.sleep(12)
-        des_url = client.post(f"{dom}/links/go", data=data, headers=h).json()["url"]
-        return des_url
+        return client.post(f"{dom}/links/go", data=data, headers=h).json()["url"]
     except BaseException:
         return "Some Error Occurred \nCould not Bypass your URL"
